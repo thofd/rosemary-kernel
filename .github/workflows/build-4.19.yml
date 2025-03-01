@@ -6,7 +6,7 @@ on:
       KERNEL_REPO:
         description: 'KERNEL_REPO'
         required: true
-        default: 'https://github.com/zainarbani/kernel-mtk-4.19'
+        default: 'https://github.com/rsuntk/kernel-mtk-4.19'
       KERNEL_BRANCH:
         description: 'KERNEL_BRANCH'
         required: true
@@ -64,9 +64,9 @@ jobs:
         echo "CLANG_VER=$(clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')" >> $GITHUB_ENV
         export ARCH=arm64
         export KBUILD_BUILD_HOST=builder
-        export KBUILD_BUILD_USER=zainarbani
+        export KBUILD_BUILD_USER=HeruStiawan
         export KBUILD_COMPILER_STRING="$(clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
-        echo "-Amogus" > localversion
+        #echo "-Amogus" > localversion
         make O=out ARCH=$ARCH ${{ github.event.inputs.KERNEL_DEFCONFIG }}
         make -j$(nproc --all) O=out CC=clang ARCH=$ARCH CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1 LD=ld.lld NM=llvm-nm AR=llvm-ar OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump
         cp out/arch/arm64/boot/Image.gz $GITHUB_WORKSPACE/project/Image.gz
@@ -74,7 +74,7 @@ jobs:
         python3 mkdtboimg.py create $GITHUB_WORKSPACE/project/dtbnew out/arch/arm64/boot/dts/mediatek/mt6785.dtb
         make clean
         git restore drivers/input/touchscreen/mediatek/ft3418_i2c/include/firmware/fw_sample.i
-        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s ${{ github.event.inputs.KSUNEXT_VERSION }}
+        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs
         echo "CONFIG_KSU=y" >> arch/arm64/configs/rosemary_defconfig
         make O=out ARCH=$ARCH ${{ github.event.inputs.KERNEL_DEFCONFIG }}
         make -j$(nproc --all) O=out CC=clang ARCH=$ARCH CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1 LD=ld.lld NM=llvm-nm AR=llvm-ar OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump
