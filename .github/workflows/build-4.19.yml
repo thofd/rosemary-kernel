@@ -15,10 +15,6 @@ on:
         description: 'KERNEL_DEFCONFIG'
         required: true
         default: 'rosemary_defconfig'
-      KSUNEXT_VERSION:
-        description: 'KSUNEXT_VERSION'
-        required: true
-        default: 'v1.0.2-R12'
       KERNEL_HOTFIX:
         description: 'KERNEL_HOTFIX'
         required: false
@@ -66,12 +62,6 @@ jobs:
         export KBUILD_BUILD_USER=HeruStiawan
         export KBUILD_COMPILER_STRING="$(clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
         #echo "-Amogus" > localversion
-        make O=out ARCH=$ARCH ${{ github.event.inputs.KERNEL_DEFCONFIG }}
-        make -j$(nproc --all) O=out CC=clang ARCH=$ARCH CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1 LD=ld.lld NM=llvm-nm AR=llvm-ar OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump
-        cp out/arch/arm64/boot/Image.gz $GITHUB_WORKSPACE/project/Image.gz
-        curl -s "https://android.googlesource.com/platform/system/libufdt/+/refs/heads/master/utils/src/mkdtboimg.py?format=TEXT" | base64 --decode > mkdtboimg.py
-        python3 mkdtboimg.py create $GITHUB_WORKSPACE/project/dtbnew out/arch/arm64/boot/dts/mediatek/mt6785.dtb
-        make clean
         git restore drivers/input/touchscreen/mediatek/ft3418_i2c/include/firmware/fw_sample.i
         curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs
         echo "CONFIG_KSU=y" >> arch/arm64/configs/rosemary_defconfig
@@ -82,9 +72,6 @@ jobs:
     - name: Prepare AK3
       run: |
         cd $GITHUB_WORKSPACE/project/AnyKernel3
-        cp $GITHUB_WORKSPACE/project/Image.gz Image.gz
-        cp $GITHUB_WORKSPACE/project/dtbnew dtbnew
-        zip -r9 $GITHUB_WORKSPACE/project/Amogus.zip -- *
         cp -f $GITHUB_WORKSPACE/project/Image.gz-ksu Image.gz
         zip -r9 $GITHUB_WORKSPACE/project/Amogus-KSU-Next.zip -- *
         
@@ -92,7 +79,6 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{ github.workspace }}/project/Amogus.zip
           ${{ github.workspace }}/project/Amogus-KSU-Next.zip
         name: Amogus-${{ env.BUILD_DATE }}
         tag_name: ${{ env.BUILD_DATE }}
@@ -127,5 +113,4 @@ jobs:
           <b>Config: </b>${{ github.event.inputs.KERNEL_DEFCONFIG }}
           <b>Kernel Ver: </b>${{ env.KERNEL_VER }}
           <b>Clang Ver: </b>${{ env.CLANG_VER }}
-          <b>KSU-Next Ver: </b>${{ github.event.inputs.KSUNEXT_VERSION }}
           <b>Maintainer: </b>@AnotherZain
