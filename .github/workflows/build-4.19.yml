@@ -6,11 +6,11 @@ on:
       KERNEL_REPO:
         description: 'KERNEL_REPO'
         required: true
-        default: 'https://github.com/rsuntk/kernel-mtk-4.19'
+        default: 'https://github.com/rsuntk/kernel_xiaomi_rosemary.git'
       KERNEL_BRANCH:
         description: 'KERNEL_BRANCH'
         required: true
-        default: 't'
+        default: 't-cip'
       KERNEL_DEFCONFIG:
         description: 'KERNEL_DEFCONFIG'
         required: true
@@ -61,7 +61,7 @@ jobs:
         export KBUILD_BUILD_HOST=builder
         export KBUILD_BUILD_USER=HeruStiawan
         export KBUILD_COMPILER_STRING="$(clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
-        #echo "-Amogus" > localversion
+        echo "-HS_Network" > localversion
         git restore drivers/input/touchscreen/mediatek/ft3418_i2c/include/firmware/fw_sample.i
         curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs
         echo "CONFIG_KSU=y" >> arch/arm64/configs/rosemary_defconfig
