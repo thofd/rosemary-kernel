@@ -6,11 +6,11 @@ on:
       KERNEL_REPO:
         description: 'KERNEL_REPO'
         required: true
-        default: 'https://github.com/zainarbani/kernel-mtk'
+        default: 'https://github.com/rsuntk/kernel_xiaomi_rosemary-4.14'
       KERNEL_BRANCH:
         description: 'KERNEL_BRANCH'
         required: true
-        default: 's'
+        default: 's-susfs'
       KERNEL_DEFCONFIG:
         description: 'KERNEL_DEFCONFIG'
         required: true
@@ -59,17 +59,11 @@ jobs:
         echo "KERNEL_VER=$(make kernelversion)" >> $GITHUB_ENV
         echo "CLANG_VER=$(clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')" >> $GITHUB_ENV
         export ARCH=arm64
-        export KBUILD_BUILD_HOST=builder
-        export KBUILD_BUILD_USER=zainarbani
+        export KBUILD_BUILD_HOST=nobody
+        export KBUILD_BUILD_USER=hsx
         export KBUILD_COMPILER_STRING="$(clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
-        echo "-OverHeat-LTO" > localversion
-        make O=out ARCH=$ARCH ${{ github.event.inputs.KERNEL_DEFCONFIG }}
-        make -j$(nproc --all) O=out CC=clang ARCH=$ARCH CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1 LD=ld.lld NM=llvm-nm AR=llvm-ar OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump
-        cp out/arch/arm64/boot/Image.gz-dtb $GITHUB_WORKSPACE/project/Image.gz-dtb
-        make clean
-        wget https://gist.githubusercontent.com/zainarbani/2b482e9e9c415a644953397b6ba5571f/raw/b66cf8d0683b5397fc1f7cc6b33ff12cc9bf9292/ksu.patch
-        git apply ksu.patch || exit
-        curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
+        echo "-HSyncX" > localversion
+        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
         make O=out ARCH=$ARCH ${{ github.event.inputs.KERNEL_DEFCONFIG }}
         make -j$(nproc --all) O=out CC=clang ARCH=$ARCH CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1 LD=ld.lld NM=llvm-nm AR=llvm-ar OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump
         cp out/arch/arm64/boot/Image.gz-dtb $GITHUB_WORKSPACE/project/Image.gz-dtb-ksu
@@ -77,17 +71,14 @@ jobs:
     - name: Prepare AK3
       run: |
         cd $GITHUB_WORKSPACE/project/AnyKernel3
-        cp $GITHUB_WORKSPACE/project/Image.gz-dtb Image.gz-dtb
-        zip -r9 $GITHUB_WORKSPACE/project/OverHeat-dev.zip -- *
         cp $GITHUB_WORKSPACE/project/Image.gz-dtb-ksu Image.gz-dtb
-        zip -r9 $GITHUB_WORKSPACE/project/OverHeat-dev-ksu.zip -- *
+        zip -r9 $GITHUB_WORKSPACE/project/HSyncX-dev-ksu.zip -- *
         
     - name: Upload Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{ github.workspace }}/project/OverHeat-dev.zip
-          ${{ github.workspace }}/project/OverHeat-dev-ksu.zip
+          ${{ github.workspace }}/project/HSyncX-dev-ksu.zip
         name: OverHeat-${{ env.BUILD_DATE }}
         tag_name: ${{ env.BUILD_DATE }}
         body: |
@@ -96,27 +87,3 @@ jobs:
           Config: ${{ github.event.inputs.KERNEL_DEFCONFIG }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Update TG
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.CHAT_ID }}
-        token: ${{ secrets.BOT_TOKEN }}
-        format: html
-        disable_web_page_preview: true
-        message: |
-          <b>OverHeat-Kernel Update</b>
-
-          <b>Build Date: </b>${{ env.BUILD_DATE }}
-          
-          <a href="https://github.com/${{ github.repository }}/releases/tag/${{ env.BUILD_DATE }}">Download</a>
-          
-          <a href="${{ github.event.inputs.KERNEL_REPO }}/commits/${{ github.event.inputs.KERNEL_BRANCH }}">Changelogs</a>
-
-          <b>Hotfix:</b>
-          ${{ github.event.inputs.KERNEL_HOTFIX }}
-
-          <b>Config: </b>${{ github.event.inputs.KERNEL_DEFCONFIG }}
-          <b>Kernel Ver: </b>${{ env.KERNEL_VER }}
-          <b>Clang Ver: </b>${{ env.CLANG_VER }}
-          <b>Maintainer: </b>@AnotherZain
