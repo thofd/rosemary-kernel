@@ -74,6 +74,13 @@ jobs:
         cd $GITHUB_WORKSPACE/project/AnyKernel3
         cp -f $GITHUB_WORKSPACE/project/Image.gz-ksu Image.gz
         zip -r9 $GITHUB_WORKSPACE/project/Amogus-KSU-Next.zip -- *
+
+    - name: Upload configs complete
+      continue-on-error: true
+      uses: actions/upload-artifact@v4
+      with:
+        name: Amogus-${{ env.BUILD_DATE }}-KSU
+        path: ${{ github.workspace }}/project/AnyKernel3/*
         
     - name: Upload Release
       uses: softprops/action-gh-release@v1
