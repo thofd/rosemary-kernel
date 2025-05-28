@@ -30,7 +30,7 @@ jobs:
     - name: Prepare Env
       run: |
         sudo apt update -y
-        sudo apt install gawk aria2 git ccache automake flex lzop bison gperf build-essential zip curl bzip2 make bc unzip python3 python-is-python3 python2 -y
+        sudo apt install gawk aria2 git ccache automake flex lzop bison gperf build-essential zip curl bzip2 make bc unzip python3 python-is-python3 -y
         git config --global user.name "bot"
         git config --global user.email "bot@email.com"
         mkdir -p $GITHUB_WORKSPACE/project
