@@ -6,15 +6,15 @@ on:
       KERNEL_REPO:
         description: 'KERNEL_REPO'
         required: true
-        default: 'https://github.com/rsuntk/kernel_xiaomi_rosemary.git'
+        default: 'https://github.com/thofd/neko_kernel_xiaomi_gauguin.git'
       KERNEL_BRANCH:
         description: 'KERNEL_BRANCH'
         required: true
-        default: 'susfs'
+        default: 'main'
       KERNEL_DEFCONFIG:
         description: 'KERNEL_DEFCONFIG'
         required: true
-        default: 'rosemary_defconfig'
+        default: 'vendor/gauguin_user_defconfig'
       KERNEL_HOTFIX:
         description: 'KERNEL_HOTFIX'
         required: false
@@ -30,7 +30,7 @@ jobs:
     - name: Prepare Env
       run: |
         sudo apt update -y
-        sudo apt install gawk aria2 git ccache automake flex lzop bison gperf build-essential zip curl bzip2 make bc unzip python3 python-is-python3 -y
+        sudo apt install gawk aria2 git ccache automake flex lzop bison gperf build-essential zip curl bzip2 make bc unzip python3 python-is-python3 python2 -y
         git config --global user.name "bot"
         git config --global user.email "bot@email.com"
         mkdir -p $GITHUB_WORKSPACE/project
